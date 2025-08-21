@@ -4,10 +4,11 @@ import { useNavigate } from 'react-router-dom';
 import { login } from '../utils/auth';
 import { AuthContext } from '../context/AuthContext';
 
+const backendUrl = import.meta.env.VITE_API_URL;
+
 export default function Login() {
   const { updateUser } = useContext(AuthContext);
   const navigate = useNavigate();
-
   const [formData, setFormData] = useState({ email: '', password: '' });
   const [loading, setLoading] = useState(false);
 
@@ -20,7 +21,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(`${backendUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
@@ -38,21 +39,17 @@ export default function Login() {
     } catch {
       alert('Server error during login. Please try again.');
     }
-
     setLoading(false);
   };
 
   const handleGoogleLoginSuccess = async (credentialResponse) => {
     const token = credentialResponse.credential;
-    console.log('Google ID Token:', token);
-
     try {
-      const res = await fetch('/api/auth/google-login', {
+      const res = await fetch(`${backendUrl}/api/auth/google-login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ token }),
       });
-
       const data = await res.json();
       if (res.ok) {
         login(token);

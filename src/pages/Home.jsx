@@ -5,19 +5,19 @@ import FadeInSection from '../animations/FadeInSection';
 import TestimonialReveal from '../animations/TestimonialReveal';
 import { AuthContext } from '../context/AuthContext';
 
+const backendUrl = import.meta.env.VITE_API_URL;
+
 function TopRightAuthBar() {
   const navigate = useNavigate();
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 20,
-        right: 30,
-        zIndex: 1000,
-        display: 'flex',
-        gap: '12px',
-      }}
-    >
+    <div style={{
+      position: 'fixed',
+      top: 20,
+      right: 30,
+      zIndex: 1000,
+      display: 'flex',
+      gap: '12px',
+    }}>
       {/* Add login/logout/profile links */}
     </div>
   );
@@ -54,7 +54,7 @@ export default function Home() {
       }
       try {
         const recentRes = await fetch(
-          `/api/auth/recent-searches?email=${encodeURIComponent(user.email)}`
+          `${backendUrl}/api/auth/recent-searches?email=${encodeURIComponent(user.email)}`
         );
         const recentData = await recentRes.json();
         const searches = (recentData && Array.isArray(recentData.recentSearches))
@@ -62,7 +62,7 @@ export default function Home() {
           : [];
         const latestSearchArr = searches.length > 0 ? [searches[0]] : [];
 
-        const recommendRes = await fetch('/api/experts/recommendations', {
+        const recommendRes = await fetch(`${backendUrl}/api/experts/recommendations`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ recentSearches: latestSearchArr }),
@@ -70,7 +70,7 @@ export default function Home() {
         const recommendData = await recommendRes.json();
         const recommended = recommendData.experts ? recommendData.experts.slice(0, 3) : [];
 
-        const randomRes = await fetch('/api/experts');
+        const randomRes = await fetch(`${backendUrl}/api/experts`);
         const allExperts = await randomRes.json();
         const shownIds = new Set(recommended.map(e => e._id ?? e.id));
         const randoms = allExperts
@@ -87,7 +87,7 @@ export default function Home() {
   }, [user]);
 
   useEffect(() => {
-    fetch('/api/experts')
+    fetch(`${backendUrl}/api/experts`)
       .then(res => res.json())
       .then(data => {
         let experts = data;
@@ -101,7 +101,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    fetch('/api/domains/trending')
+    fetch(`${backendUrl}/api/domains/trending`)
       .then(res => res.json())
       .then(data => setTrendingDomains(data))
       .catch(() => setTrendingDomains([]));

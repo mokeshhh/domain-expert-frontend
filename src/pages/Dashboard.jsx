@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+const backendUrl = import.meta.env.VITE_API_URL;
+
 export default function Dashboard() {
   const [experts, setExperts] = useState([]);
   const [loading, setLoading] = useState(true);
-
   const userEmail = localStorage.getItem('email');
   const navigate = useNavigate();
 
@@ -14,15 +15,14 @@ export default function Dashboard() {
         setLoading(false);
         return;
       }
-
       try {
-        const res = await fetch(`/api/auth/get-saved-experts?email=${userEmail}`);
+        const res = await fetch(`${backendUrl}/api/auth/get-saved-experts?email=${userEmail}`);
         const data = await res.json();
 
         if (res.ok && Array.isArray(data.savedExperts)) {
           const expertDetails = await Promise.all(
             data.savedExperts.map(async (id) => {
-              const resExpert = await fetch(`/api/experts/${id}`);
+              const resExpert = await fetch(`${backendUrl}/api/experts/${id}`);
               if (resExpert.ok) {
                 return await resExpert.json();
               }
@@ -36,24 +36,20 @@ export default function Dashboard() {
       } catch {
         setExperts([]);
       }
-
       setLoading(false);
     }
-
     fetchSavedExperts();
   }, [userEmail]);
 
   const handleRemoveExpert = async (expertId) => {
     try {
-      const res = await fetch('/api/auth/remove-saved-expert', {
+      const res = await fetch(`${backendUrl}/api/auth/remove-saved-expert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userEmail, expertId }),
       });
       const data = await res.json();
-
       if (res.ok) {
-        // Remove the expert from local state to update UI immediately
         setExperts(prev => prev.filter(expert => expert._id !== expertId));
         alert('Expert removed successfully.');
       } else {
@@ -87,7 +83,7 @@ export default function Dashboard() {
             </div>
             <button
               onClick={e => {
-                e.stopPropagation(); // prevent navigating when clicking 'Remove'
+                e.stopPropagation();
                 handleRemoveExpert(expert._id);
               }}
               className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 focus:outline-none"

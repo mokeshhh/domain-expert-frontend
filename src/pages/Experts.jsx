@@ -21,6 +21,7 @@ function capitalizeWords(str) {
 }
 
 export default function Experts() {
+  const backendUrl = import.meta.env.VITE_API_URL;  // Added to get backend base URL
   const { user } = useContext(AuthContext);
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -41,7 +42,7 @@ export default function Experts() {
 
   useEffect(() => {
     setLoading(true);
-    fetch('/api/experts')
+    fetch(`${backendUrl}/api/experts`)  // Updated to use backend URL
       .then(res => res.json())
       .then(data => {
         setExperts(data);
@@ -52,20 +53,20 @@ export default function Experts() {
         setDomains(uniqueDomains);
       })
       .catch(() => setLoading(false));
-  }, []);
+  }, [backendUrl]);
 
   useEffect(() => {
     if (!user?.email) {
       setRecentSearches([]);
       return;
     }
-    fetch(`/api/auth/recent-searches?email=${encodeURIComponent(user.email)}`)
+    fetch(`${backendUrl}/api/auth/recent-searches?email=${encodeURIComponent(user.email)}`)  // Updated
       .then(res => res.json())
       .then(data => {
         if (data.recentSearches) setRecentSearches(data.recentSearches);
       })
       .catch(() => setRecentSearches([]));
-  }, [user]);
+  }, [user, backendUrl]);
 
   useEffect(() => {
     let filtered = [...experts];
@@ -88,7 +89,7 @@ export default function Experts() {
 
   const saveRecentSearch = (query) => {
     if (!user?.email || !query.trim()) return;
-    fetch('/api/auth/save-recent-search', {
+    fetch(`${backendUrl}/api/auth/save-recent-search`, {  // Updated
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email: user.email, searchQuery: query.trim() }),

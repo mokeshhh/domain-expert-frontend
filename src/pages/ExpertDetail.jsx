@@ -7,6 +7,8 @@ function capitalizeWords(str) {
   return str.replace(/\b\w/g, l => l.toUpperCase());
 }
 
+const backendUrl = import.meta.env.VITE_API_URL;
+
 export default function ExpertDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -23,7 +25,7 @@ export default function ExpertDetail() {
   const userEmail = localStorage.getItem('email');
 
   useEffect(() => {
-    fetch(`/api/experts/${id}`)
+    fetch(`${backendUrl}/api/experts/${id}`)
       .then(res => {
         if (!res.ok) throw new Error('Expert not found');
         return res.json();
@@ -33,7 +35,7 @@ export default function ExpertDetail() {
         setLoading(false);
 
         if (isLoggedIn && userEmail) {
-          fetch(`/api/auth/get-saved-experts?email=${userEmail}`)
+          fetch(`${backendUrl}/api/auth/get-saved-experts?email=${userEmail}`)
             .then(res => res.json())
             .then(({ savedExperts }) => {
               if (savedExperts && savedExperts.includes(data._id)) {
@@ -77,18 +79,17 @@ export default function ExpertDetail() {
   };
 
   const handleBookmark = async () => {
-   if (!isLoggedIn) {
-  showNotification('Please log in to save experts.', 'error');
-  setTimeout(() => {
-    navigate('/login');
-  }, 1500); // 1.5 seconds delay to show notification before redirect
-  return;
-}
-
+    if (!isLoggedIn) {
+      showNotification('Please log in to save experts.', 'error');
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+      return;
+    }
 
     if (isSaved) {
       try {
-        const res = await fetch('/api/auth/remove-saved-expert', {
+        const res = await fetch(`${backendUrl}/api/auth/remove-saved-expert`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: userEmail, expertId: expert._id }),
@@ -105,7 +106,7 @@ export default function ExpertDetail() {
       }
     } else {
       try {
-        const res = await fetch('/api/auth/save-expert', {
+        const res = await fetch(`${backendUrl}/api/auth/save-expert`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email: userEmail, expertId: expert._id }),
@@ -174,13 +175,9 @@ export default function ExpertDetail() {
       </div>
 
       {expert.username && <p className="mb-2"><strong>Username:</strong> {expert.username}</p>}
-
       <p className="mb-2"><strong>Domain:</strong> {capitalizeWords(expert.domain) || 'N/A'}</p>
-
       {expert.bio && <p className="mb-2"><strong>Bio:</strong> {expert.bio}</p>}
-
       {expert.location && <p className="mb-2"><strong>Location:</strong> {expert.location}</p>}
-
       {expert.linkedin_url && (
         <p className="mb-2">
           <strong>LinkedIn:</strong>{' '}
@@ -194,7 +191,6 @@ export default function ExpertDetail() {
           </a>
         </p>
       )}
-
       {expert.profile_url && (
         <p className="mb-4">
           <strong>Profile URL:</strong>{' '}
@@ -208,9 +204,7 @@ export default function ExpertDetail() {
           </a>
         </p>
       )}
-
       {wikiLoading && <p>Loading Wikipedia info...</p>}
-
       {wikiInfo && (
         <div className="mb-6">
           {wikiInfo.thumbnail && (
@@ -242,14 +236,12 @@ export default function ExpertDetail() {
           )}
         </div>
       )}
-
       {expert.about && (
         <section className="mb-6">
           <h3 className="text-xl font-semibold mb-2">About</h3>
           <p>{expert.about}</p>
         </section>
       )}
-
       {expert.wikipedia_url && (
         <p>
           <a
