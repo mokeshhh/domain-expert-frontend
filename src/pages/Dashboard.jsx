@@ -10,7 +10,8 @@ export default function Dashboard() {
 
   const userEmail = localStorage.getItem('email');
   const navigate = useNavigate();
-  const API_BASE_URL = import.meta.env.VITE_API_URL || '';
+  const API_URL = import.meta.env.VITE_API_URL;
+
 
   useEffect(() => {
     async function fetchSavedExperts() {
@@ -19,7 +20,7 @@ export default function Dashboard() {
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/api/auth/get-saved-experts?email=${userEmail}`);
+        const res = await fetch(`${API_URL}/api/auth/get-saved-experts?email=${userEmail}`);
         const data = await res.json();
         if (res.ok && Array.isArray(data.savedExperts)) {
           const expertDetails = await Promise.all(
@@ -43,7 +44,7 @@ export default function Dashboard() {
   const handleRemoveExpert = async (expertId) => {
     setRemovingId(expertId);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/remove-saved-expert`, {
+      const res = await fetch(`${API_URL}/api/auth/remove-saved-expert`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userEmail, expertId }),
