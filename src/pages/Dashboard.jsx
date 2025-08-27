@@ -25,7 +25,7 @@ export default function Dashboard() {
         if (res.ok && Array.isArray(data.savedExperts)) {
           const expertDetails = await Promise.all(
             data.savedExperts.map(async (id) => {
-              const resExpert = await fetch(`${API_BASE_URL}/api/experts/${id}`);
+              const resExpert = await fetch(`${API_URL}/api/experts/${id}`);
               return resExpert.ok ? await resExpert.json() : null;
             })
           );
@@ -39,7 +39,7 @@ export default function Dashboard() {
       setLoading(false);
     }
     fetchSavedExperts();
-  }, [userEmail, API_BASE_URL]);
+  }, [userEmail, API_URL]);
 
   const handleRemoveExpert = async (expertId) => {
     setRemovingId(expertId);
